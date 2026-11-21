@@ -15,6 +15,9 @@
 #include <tlhelp32.h>
 #include <psapi.h>
 
+#include <inttypes.h>
+#include <stdint.h>
+
 GLOG_INST(GLOG_NAME)
 
 static struct {
@@ -99,7 +102,7 @@ static int restoreprocess(struct processinfo * info) {
             processmask |= (1 << state.core);
 
             if (GLOG_LEVEL(GLOG_NAME,TRACE)) {
-                printf("process = %lu exe = %s restore affinity 0x%Ix.\n", info->pid, info->exefile, processmask);
+                printf("process = %lu exe = %s restore affinity 0x%" PRIxPTR ".\n", info->pid, info->exefile, processmask);
             }
 
             if (SetProcessAffinityMask (info->handle, processmask) == 0) {
@@ -155,7 +158,7 @@ static int restorethread(struct threadinfo * info) {
             threadAffinity |= (1 << state.core);
 
             if (GLOG_LEVEL(GLOG_NAME,DEBUG)) {
-                printf("thread = %lu restore affinity 0x%Ix.\n", info->tid, threadAffinity);
+                printf("thread = %lu restore affinity 0x%" PRIxPTR ".\n", info->tid, threadAffinity);
             }
 
             if (SetThreadAffinityMask(info->handle, threadAffinity) == 0) {
@@ -394,7 +397,7 @@ static void unsetprocessaffinities(unsigned int core) {
 
             process->set = 1;
             if (GLOG_LEVEL(GLOG_NAME,TRACE)) {
-                printf("process = %lu exe = %s set affinity 0x%Ix\n", process->pid, process->exefile, affinitymask);
+                printf("process = %lu exe = %s set affinity 0x%" PRIxPTR "\n", process->pid, process->exefile, affinitymask);
             }
         }
     }
@@ -495,7 +498,7 @@ static void unsetthreadaffinities(unsigned int core) {
 
         thread->set = 1;
         if (GLOG_LEVEL(GLOG_NAME,DEBUG)) {
-            printf("thread id = %lu set affinity 0x%Ix\n", thread->tid, threadAffinity);
+            printf("thread id = %lu set affinity 0x%" PRIxPTR "\n", thread->tid, threadAffinity);
         }
     }
 }
@@ -563,7 +566,7 @@ void gprio_clean() {
         }
 
         if (GLOG_LEVEL(GLOG_NAME,DEBUG)) {
-            printf("Restore thread affinity to 0x%Ix.\n", process);
+            printf("Restore thread affinity to 0x%" PRIxPTR ".\n", process);
         }
 
         if (SetThreadAffinityMask(GetCurrentThread(), process) == 0) {
@@ -598,7 +601,7 @@ int gprio_init() {
     }
 
     if (GLOG_LEVEL(GLOG_NAME,DEBUG)) {
-        printf("Affinities: process = 0x%Ix, system = 0x%Ix\n", processmask, systemmask);
+        printf("Affinities: process = 0x%" PRIxPTR ", system = 0x%" PRIxPTR "\n", processmask, systemmask);
     }
 
     unsigned int corecount = 0;
